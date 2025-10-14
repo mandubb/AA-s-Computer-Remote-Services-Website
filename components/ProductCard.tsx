@@ -16,6 +16,7 @@ interface Product {
   type: "software" | "game";
   releaseYear: number;
   popularity: number;
+  background_image?: string;
 }
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -34,20 +35,32 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <div
-      className="card group flex flex-col relative overflow-hidden cursor-pointer"
+      className="card group flex flex-col relative overflow-hidden cursor-pointer h-full"
       onClick={handleProductClick}
     >
       {/* Glow effect on hover */}
       <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 via-neon-blue/5 to-neon-magenta/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
       
-      <div className="flex-1 relative z-10">
-        <div className="flex items-start justify-between mb-4">
+      {/* Game Poster */}
+      {product.background_image && (
+        <div className="relative h-48 overflow-hidden rounded-t-lg">
+          <img
+            src={product.background_image}
+            alt={`${product.name} poster`}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-midnight-900/90 to-transparent opacity-70" />
+        </div>
+      )}
+      
+      <div className="flex-1 relative z-10 p-5">
+        <div className="flex items-start justify-between mb-3">
           <div>
-            <h3 className="text-xl font-semibold text-slate-100 group-hover:text-neon-cyan transition-colors duration-300">
+            <h3 className="text-xl font-semibold text-slate-100 group-hover:text-neon-cyan transition-colors duration-300 line-clamp-1">
               {product.name}
             </h3>
             <p className="text-xs uppercase tracking-[0.25em] text-slate-500 mt-1">
-              {product.releaseYear} • Popularity {product.popularity}
+              {product.releaseYear} • {product.popularity}% Rating
             </p>
           </div>
           <span className="badge shrink-0 ml-2">
@@ -55,16 +68,18 @@ export default function ProductCard({ product }: { product: Product }) {
           </span>
         </div>
         
-        <p className="text-slate-400 mb-5 leading-relaxed text-sm">{product.description}</p>
+        <p className="text-slate-400 mb-4 leading-relaxed text-sm line-clamp-2">
+          {product.description}
+        </p>
         
-        <div className="flex gap-2 mb-5">
-          {product.platforms.includes("Windows") && (
+        <div className="flex gap-2 mb-4 flex-wrap">
+          {product.platforms && product.platforms.includes("Windows") && (
             <div className="flex items-center gap-1.5 border border-neon-blue/30 bg-neon-blue/10 px-3 py-1.5 rounded-full">
               <Monitor className="w-3.5 h-3.5 text-neon-blue" />
               <span className="text-xs font-medium text-neon-blue uppercase tracking-wider">Windows</span>
             </div>
           )}
-          {product.platforms.includes("Mac") && (
+          {product.platforms && product.platforms.includes("Mac") && (
             <div className="flex items-center gap-1.5 border border-slate-400/30 bg-slate-400/10 px-3 py-1.5 rounded-full">
               <Laptop className="w-3.5 h-3.5 text-slate-300" />
               <span className="text-xs font-medium text-slate-300 uppercase tracking-wider">Mac</span>
