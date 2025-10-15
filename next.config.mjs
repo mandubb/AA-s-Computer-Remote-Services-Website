@@ -6,6 +6,14 @@ const nextConfig = {
         protocol: "https",
         hostname: "media.rawg.io",
       },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "www.freetogame.com",
+      },
     ],
   },
 };

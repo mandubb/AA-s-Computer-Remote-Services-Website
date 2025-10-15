@@ -51,6 +51,7 @@ export default function ProductCard({ product }: { product: Product }) {
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            loading="lazy"
             priority={false}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-midnight-900/90 to-transparent opacity-70" />
@@ -60,7 +61,7 @@ export default function ProductCard({ product }: { product: Product }) {
       <div className="flex-1 relative z-10 p-5">
         <div className="flex items-start justify-between mb-3">
           <div>
-            <h3 className="text-xl font-semibold text-slate-100 group-hover:text-neon-cyan transition-colors duration-300 line-clamp-1">
+            <h3 className="text-xl font-semibold text-slate-100 group-hover:text-neon-cyan transition-colors duration-300">
               {product.name}
             </h3>
             <p className="text-xs uppercase tracking-[0.25em] text-slate-500 mt-1">
