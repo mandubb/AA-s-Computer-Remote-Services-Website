@@ -32,9 +32,10 @@ const config: Config = {
       animation: {
         "float": "float 6s ease-in-out infinite",
         "float-slow": "float 8s ease-in-out infinite",
-        "gradient": "gradient 18s ease infinite",
+        "gradient": "gradient 8s ease infinite",
         "pulse-slow": "pulse-slow 6s ease-in-out infinite",
         "glow": "glow 4s ease-in-out infinite",
+        "bounce": "bounce 2s ease-in-out infinite",
       },
       keyframes: {
         float: {

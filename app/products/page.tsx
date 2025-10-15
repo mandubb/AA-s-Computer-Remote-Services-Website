@@ -5,6 +5,26 @@ import ProductCard from "@/components/ProductCard";
 import { Search, Loader2 } from "lucide-react";
 import Reveal from "@/components/Reveal";
 
+type ProductCardData = Parameters<typeof ProductCard>[0]["product"];
+
+const API_KEY = "7cd9a059c2ea4dcfb8306dd7a823cc50";
+const PAGE_SIZE = 9;
+const EXCLUDED_NAME_KEYWORDS = ["demo", "beta", "alpha", "prototype", "test", "lite", "trial"] as const;
+
+const SOFTWARE_PRODUCTS: ProductCardData[] = [
+  { name: "Microsoft Office Suite", description: "Complete productivity suite including Word, Excel, PowerPoint, and more.", requirements: { windows: "Windows 10 or later, 4GB RAM, 4GB disk space", mac: "macOS 10.14 or later, 4GB RAM, 10GB disk space" }, platforms: ["Windows", "Mac"], category: "Productivity", type: "software", releaseYear: 2021, popularity: 98 },
+  { name: "Adobe Creative Cloud", description: "Professional creative tools including Photoshop, Illustrator, Premiere Pro, and more.", requirements: { windows: "Windows 10 (64-bit), 8GB RAM, 4GB disk space", mac: "macOS 10.15 or later, 8GB RAM, 4GB disk space" }, platforms: ["Windows", "Mac"], category: "Creative", type: "software", releaseYear: 2023, popularity: 95 },
+  { name: "AutoCAD", description: "Industry-leading CAD software for 2D and 3D design, drafting, and modeling.", requirements: { windows: "Windows 10/11 (64-bit), 16GB RAM, 10GB disk space, DirectX 11 compatible graphics", mac: "macOS 11 or later, 16GB RAM, 10GB disk space" }, platforms: ["Windows", "Mac"], category: "Design", type: "software", releaseYear: 2024, popularity: 92 },
+  { name: "Visual Studio Code", description: "Free, powerful code editor with IntelliSense, debugging, and Git integration.", requirements: { windows: "Windows 7 or later, 1.6 GHz processor, 1GB RAM", mac: "macOS 10.11 or later, 1GB RAM" }, platforms: ["Windows", "Mac"], category: "Development", type: "software", releaseYear: 2024, popularity: 97 },
+  { name: "Zoom", description: "Video conferencing and online meeting platform for remote work.", requirements: { windows: "Windows 7 or later, Dual-core 2GHz or higher, 4GB RAM", mac: "macOS 10.10 or later, Dual-core 2GHz or higher, 4GB RAM" }, platforms: ["Windows", "Mac"], category: "Communication", type: "software", releaseYear: 2023, popularity: 93 },
+  { name: "Spotify", description: "Stream millions of songs and podcasts with personalized playlists.", requirements: { windows: "Windows 7 or later, 1GB RAM", mac: "macOS 10.10 or later, 1GB RAM" }, platforms: ["Windows", "Mac"], category: "Entertainment", type: "software", releaseYear: 2022, popularity: 90 },
+  { name: "VLC Media Player", description: "Free, open-source multimedia player for all formats.", requirements: { windows: "Windows 7 or later, 1GB RAM", mac: "macOS 10.10 or later, 1GB RAM" }, platforms: ["Windows", "Mac"], category: "Media", type: "software", releaseYear: 2023, popularity: 89 },
+  { name: "Slack", description: "Team collaboration and messaging platform for businesses.", requirements: { windows: "Windows 7 or later, 2GB RAM", mac: "macOS 10.10 or later, 2GB RAM" }, platforms: ["Windows", "Mac"], category: "Communication", type: "software", releaseYear: 2022, popularity: 91 },
+  { name: "Notion", description: "All-in-one workspace for notes, tasks, wikis, and databases.", requirements: { windows: "Windows 7 or later, 2GB RAM", mac: "macOS 10.11 or later, 2GB RAM" }, platforms: ["Windows", "Mac"], category: "Productivity", type: "software", releaseYear: 2024, popularity: 94 },
+  { name: "Figma Desktop", description: "Collaborative interface design tool for teams.", requirements: { windows: "Windows 10 or later, 4GB RAM", mac: "macOS 10.13 or later, 4GB RAM" }, platforms: ["Windows", "Mac"], category: "Design", type: "software", releaseYear: 2023, popularity: 93 },
+  { name: "Blender", description: "Free 3D creation suite for modeling, animation, and rendering.", requirements: { windows: "Windows 8.1 or later, 8GB RAM, 2GB VRAM", mac: "macOS 10.13 or later, 8GB RAM" }, platforms: ["Windows", "Mac"], category: "Creative", type: "software", releaseYear: 2024, popularity: 88 },
+];
+
 interface Game {
   id: number;
   name: string;
@@ -18,6 +38,21 @@ interface Game {
   ratings_count: number;
 }
 
+const isMainlineGame = (game: Game) => {
+  const parentGames = Array.isArray(game.parent_games) ? game.parent_games : [];
+  if (parentGames.length > 0) {
+    return false;
+  }
+
+  const slug = game.slug?.toLowerCase() ?? "";
+  const name = game.name.toLowerCase();
+  const hasExcludedKeyword = EXCLUDED_NAME_KEYWORDS.some(
+    (keyword) => slug.includes(keyword) || name.includes(keyword)
+  );
+
+  return !hasExcludedKeyword;
+};
+
 export default function ProductsPage() {
   const [activeTab, setActiveTab] = useState<"software" | "game">("software");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
@@ -27,7 +62,9 @@ export default function ProductsPage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const latestSearchRef = useRef(searchQuery);
+  const previousTabRef = useRef<"software" | "game">(activeTab);
   const observer = useRef<IntersectionObserver | null>(null);
   const lastGameElementRef = useCallback((node: HTMLDivElement | null) => {
     if (!node) return;
@@ -56,25 +93,6 @@ export default function ProductsPage() {
       }
     };
   }, []);
-
-  const API_KEY = '7cd9a059c2ea4dcfb8306dd7a823cc50';
-  const PAGE_SIZE = 9;
-  const EXCLUDED_NAME_KEYWORDS = ["demo", "beta", "alpha", "prototype", "test", "lite", "trial"];
-
-  const isMainlineGame = (game: Game) => {
-    const parentGames = Array.isArray(game.parent_games) ? game.parent_games : [];
-    if (parentGames.length > 0) {
-      return false;
-    }
-
-    const slug = game.slug?.toLowerCase() ?? "";
-    const name = game.name.toLowerCase();
-    const hasExcludedKeyword = EXCLUDED_NAME_KEYWORDS.some((keyword) =>
-      slug.includes(keyword) || name.includes(keyword)
-    );
-
-    return !hasExcludedKeyword;
-  };
 
   const fetchGames = useCallback(async (pageNum: number, search: string = '') => {
     setIsLoading(true);
@@ -111,21 +129,22 @@ export default function ProductsPage() {
 
   // Handle search with debounce
   useEffect(() => {
-    if (searchTimeout) {
-      clearTimeout(searchTimeout);
+    latestSearchRef.current = searchQuery;
+
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
     }
 
-    setSearchTimeout(
-      setTimeout(() => {
-        setGames([]);
-        setPage(1);
-        fetchGames(1, searchQuery);
-      }, 500)
-    );
+    searchTimeoutRef.current = setTimeout(() => {
+      setGames([]);
+      setPage(1);
+      fetchGames(1, searchQuery);
+    }, 500);
 
     return () => {
-      if (searchTimeout) {
-        clearTimeout(searchTimeout);
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+        searchTimeoutRef.current = null;
       }
     };
   }, [searchQuery, fetchGames]);
@@ -139,10 +158,20 @@ export default function ProductsPage() {
 
   // Initial load
   useEffect(() => {
-    if (activeTab === 'game') {
-      setGames([]);
-      setPage(1);
-      fetchGames(1, searchQuery);
+    const hasTabChanged = previousTabRef.current !== activeTab;
+    previousTabRef.current = activeTab;
+
+    if (!hasTabChanged) {
+      return;
+    }
+
+    setGames([]);
+    setPage(1);
+
+    if (activeTab === "game") {
+      fetchGames(1, latestSearchRef.current);
+    } else {
+      setHasMore(true);
     }
   }, [activeTab, fetchGames]);
 
@@ -186,10 +215,10 @@ export default function ProductsPage() {
   }, [games, selectedCategory, sortOption]);
 
   // Format game data for ProductCard component
-  const formatGameForCard = (game: Game) => ({
+  const formatGameForCard = (game: Game): ProductCardData => ({
     name: game.name,
     description: game.genres.map(g => g.name).join(', ') || 'Genres unavailable',
-    requirements: { windows: 'Check system requirements on store page' },
+    requirements: { windows: 'Check system requirements on store page', mac: null },
     platforms: (game.platforms ?? []).map(p => p.platform.name),
     category: game.genres[0]?.name || 'Game',
     type: 'game' as const,
@@ -198,38 +227,17 @@ export default function ProductsPage() {
     background_image: game.background_image ?? undefined
   });
 
-  // Get products based on active tab
-  const getProducts = () => {
-    if (activeTab === 'software') {
-      // Return static software data
-      return [
-        { name: "Microsoft Office Suite", description: "Complete productivity suite including Word, Excel, PowerPoint, and more.", requirements: { windows: "Windows 10 or later, 4GB RAM, 4GB disk space", mac: "macOS 10.14 or later, 4GB RAM, 10GB disk space" }, platforms: ["Windows", "Mac"], category: "Productivity", type: "software" as const, releaseYear: 2021, popularity: 98 },
-        { name: "Adobe Creative Cloud", description: "Professional creative tools including Photoshop, Illustrator, Premiere Pro, and more.", requirements: { windows: "Windows 10 (64-bit), 8GB RAM, 4GB disk space", mac: "macOS 10.15 or later, 8GB RAM, 4GB disk space" }, platforms: ["Windows", "Mac"], category: "Creative", type: "software" as const, releaseYear: 2023, popularity: 95 },
-        { name: "AutoCAD", description: "Industry-leading CAD software for 2D and 3D design, drafting, and modeling.", requirements: { windows: "Windows 10/11 (64-bit), 16GB RAM, 10GB disk space, DirectX 11 compatible graphics", mac: "macOS 11 or later, 16GB RAM, 10GB disk space" }, platforms: ["Windows", "Mac"], category: "Design", type: "software" as const, releaseYear: 2024, popularity: 92 },
-        { name: "Visual Studio Code", description: "Free, powerful code editor with IntelliSense, debugging, and Git integration.", requirements: { windows: "Windows 7 or later, 1.6 GHz processor, 1GB RAM", mac: "macOS 10.11 or later, 1GB RAM" }, platforms: ["Windows", "Mac"], category: "Development", type: "software" as const, releaseYear: 2024, popularity: 97 },
-        { name: "Zoom", description: "Video conferencing and online meeting platform for remote work.", requirements: { windows: "Windows 7 or later, Dual-core 2GHz or higher, 4GB RAM", mac: "macOS 10.10 or later, Dual-core 2GHz or higher, 4GB RAM" }, platforms: ["Windows", "Mac"], category: "Communication", type: "software" as const, releaseYear: 2023, popularity: 93 },
-        { name: "Spotify", description: "Stream millions of songs and podcasts with personalized playlists.", requirements: { windows: "Windows 7 or later, 1GB RAM", mac: "macOS 10.10 or later, 1GB RAM" }, platforms: ["Windows", "Mac"], category: "Entertainment", type: "software" as const, releaseYear: 2022, popularity: 90 },
-        { name: "VLC Media Player", description: "Free, open-source multimedia player for all formats.", requirements: { windows: "Windows 7 or later, 1GB RAM", mac: "macOS 10.10 or later, 1GB RAM" }, platforms: ["Windows", "Mac"], category: "Media", type: "software" as const, releaseYear: 2023, popularity: 89 },
-        { name: "Slack", description: "Team collaboration and messaging platform for businesses.", requirements: { windows: "Windows 7 or later, 2GB RAM", mac: "macOS 10.10 or later, 2GB RAM" }, platforms: ["Windows", "Mac"], category: "Communication", type: "software" as const, releaseYear: 2022, popularity: 91 },
-        { name: "Notion", description: "All-in-one workspace for notes, tasks, wikis, and databases.", requirements: { windows: "Windows 7 or later, 2GB RAM", mac: "macOS 10.11 or later, 2GB RAM" }, platforms: ["Windows", "Mac"], category: "Productivity", type: "software" as const, releaseYear: 2024, popularity: 94 },
-        { name: "Figma Desktop", description: "Collaborative interface design tool for teams.", requirements: { windows: "Windows 10 or later, 4GB RAM", mac: "macOS 10.13 or later, 4GB RAM" }, platforms: ["Windows", "Mac"], category: "Design", type: "software" as const, releaseYear: 2023, popularity: 93 },
-        { name: "Blender", description: "Free 3D creation suite for modeling, animation, and rendering.", requirements: { windows: "Windows 8.1 or later, 8GB RAM, 2GB VRAM", mac: "macOS 10.13 or later, 8GB RAM" }, platforms: ["Windows", "Mac"], category: "Creative", type: "software" as const, releaseYear: 2024, popularity: 88 },
-      ];
-    } else {
-      // Return formatted game data
-      return filteredGames.map(game => formatGameForCard(game));
+  const products = useMemo<ProductCardData[]>(() => {
+    if (activeTab === "software") {
+      return SOFTWARE_PRODUCTS;
     }
-  };
+
+    return filteredGames.map((game) => formatGameForCard(game));
+  }, [activeTab, filteredGames]);
 
   // Filter products based on search query and category
-  const filteredProducts = useMemo(() => {
-    const products = getProducts();
-    
-    return products.filter((product: { 
-      name: string; 
-      description: string; 
-      category: string;
-    }) => {
+  const filteredProducts = useMemo((): ProductCardData[] => {
+    return products.filter((product) => {
       // Filter by search query
       const matchesSearch = searchQuery === '' || 
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -241,7 +249,7 @@ export default function ProductsPage() {
       
       return matchesSearch && matchesCategory;
     });
-  }, [activeTab, filteredGames, searchQuery, selectedCategory]);
+  }, [products, searchQuery, selectedCategory]);
 
   return (
     <div className="relative min-h-screen">
@@ -357,7 +365,7 @@ export default function ProductsPage() {
         {/* Products Grid */}
         {filteredProducts.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProducts.map((product: any, index: number) => {
+            {filteredProducts.map((product, index) => {
               // Add ref to the last element for infinite loading
               if (index === filteredProducts.length - 1 && activeTab === 'game' && hasMore) {
                 return (

@@ -1,8 +1,20 @@
+"use client";
+
 import Link from "next/link";
-import { Package, Zap, Shield } from "lucide-react";
+import { Package, Zap, Shield, ArrowRight } from "lucide-react";
 import SocialButtons from "@/components/SocialButtons";
+import ParticleNetwork from "@/components/ParticleNetwork";
+import CircuitGrid from "@/components/CircuitGrid";
+import { useEffect, useState } from "react";
 
 export default function Home() {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    // Trigger animations on mount
+    setIsVisible(true);
+  }, []);
+
   const features = [
     {
       icon: Package,
@@ -23,31 +35,125 @@ export default function Home() {
 
   return (
     <div className="relative">
-      {/* Hero Section */}
-      <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden px-6 py-20">
-        <div className="container mx-auto text-center">
-          <h1 className="font-display text-6xl md:text-8xl font-bold uppercase tracking-[0.3em] mb-6 reveal reveal-visible">
-            <span className="bg-gradient-to-r from-neon-cyan via-neon-blue to-neon-magenta bg-clip-text text-transparent">
-              AA&apos;s
-            </span>
-          </h1>
-          <p className="text-2xl md:text-3xl font-light tracking-[0.5em] uppercase text-slate-300 mb-4">
-            Computer Remote Services
-          </p>
-          <p className="text-base md:text-lg text-slate-400 max-w-2xl mx-auto mb-12 leading-relaxed">
-            Professional remote installation for software and games. Browse our catalog, request setup, and let our experts handle the rest.
-          </p>
+      {/* Animated Background Layers */}
+      <ParticleNetwork />
+      <CircuitGrid />
 
-          <div className="flex flex-wrap items-center justify-center gap-4 mb-12">
-            <Link href="/products" className="btn-primary">
-              Browse Products
-            </Link>
-            <Link href="/contact" className="btn-secondary">
-              Get Support
-            </Link>
+      {/* Hero Landing Section */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-6">
+        <div className="container mx-auto text-center relative z-10">
+          {/* Animated Title */}
+          <div
+            className={`transition-all duration-1000 ease-out ${
+              isVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-12"
+            }`}
+            style={{ transitionDelay: "200ms" }}
+          >
+            <h1 className="font-display text-7xl md:text-9xl font-bold uppercase tracking-[0.3em] mb-8">
+              <span className="bg-gradient-to-r from-neon-cyan via-neon-blue to-neon-magenta bg-clip-text text-transparent animate-gradient bg-[length:200%_auto]">
+                AA&apos;s
+              </span>
+            </h1>
           </div>
 
-          <SocialButtons />
+          {/* Animated Subtitle */}
+          <div
+            className={`transition-all duration-1000 ease-out ${
+              isVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-12"
+            }`}
+            style={{ transitionDelay: "400ms" }}
+          >
+            <p className="text-2xl md:text-4xl font-light tracking-[0.5em] uppercase text-slate-200 mb-3">
+              Computer and Remote Services
+            </p>
+          </div>
+
+          {/* Animated Tagline */}
+          <div
+            className={`transition-all duration-1000 ease-out ${
+              isVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-12"
+            }`}
+            style={{ transitionDelay: "600ms" }}
+          >
+            <p className="text-lg md:text-xl text-neon-cyan font-light tracking-[0.2em] uppercase mb-12">
+              Reliable Remote Support for All Your Computer Needs
+            </p>
+          </div>
+
+          {/* Animated Divider */}
+          <div
+            className={`transition-all duration-1000 ease-out ${
+              isVisible ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0"
+            }`}
+            style={{ transitionDelay: "800ms" }}
+          >
+            <div className="w-32 h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent mx-auto mb-12" />
+          </div>
+
+          {/* Animated CTA Buttons */}
+          <div
+            className={`transition-all duration-1000 ease-out ${
+              isVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-12"
+            }`}
+            style={{ transitionDelay: "1000ms" }}
+          >
+            <div className="flex flex-wrap items-center justify-center gap-6 mb-16">
+              <Link
+                href="/products"
+                className="btn-primary group relative overflow-hidden"
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  Explore Products
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </span>
+              </Link>
+              <Link href="/contact" className="btn-secondary group">
+                <span className="relative z-10 flex items-center gap-2">
+                  Contact Us
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </span>
+              </Link>
+            </div>
+          </div>
+
+          {/* Animated Social Buttons */}
+          <div
+            className={`transition-all duration-1000 ease-out ${
+              isVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-12"
+            }`}
+            style={{ transitionDelay: "1200ms" }}
+          >
+            <SocialButtons />
+          </div>
+
+          {/* Scroll Indicator */}
+          <div
+            className={`absolute bottom-12 left-1/2 -translate-x-1/2 transition-all duration-1000 ease-out ${
+              isVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-12"
+            }`}
+            style={{ transitionDelay: "1400ms" }}
+          >
+            <div className="flex flex-col items-center gap-2 animate-bounce">
+              <div className="w-6 h-10 border-2 border-neon-cyan/50 rounded-full flex items-start justify-center p-2">
+                <div className="w-1.5 h-3 bg-neon-cyan rounded-full animate-pulse" />
+              </div>
+              <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
+                Scroll
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 

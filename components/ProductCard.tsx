@@ -3,6 +3,7 @@
 import { Monitor, Laptop, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Product {
   name: string;
@@ -14,7 +15,7 @@ interface Product {
   platforms: string[];
   category: string;
   type: "software" | "game";
-  releaseYear: number;
+  releaseYear?: number;
   popularity: number;
   background_image?: string;
 }
@@ -44,10 +45,13 @@ export default function ProductCard({ product }: { product: Product }) {
       {/* Game Poster */}
       {product.background_image && (
         <div className="relative h-48 overflow-hidden rounded-t-lg">
-          <img
+          <Image
             src={product.background_image}
             alt={`${product.name} poster`}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            priority={false}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-midnight-900/90 to-transparent opacity-70" />
         </div>
@@ -60,7 +64,7 @@ export default function ProductCard({ product }: { product: Product }) {
               {product.name}
             </h3>
             <p className="text-xs uppercase tracking-[0.25em] text-slate-500 mt-1">
-              {product.releaseYear} • {product.popularity}% Rating
+              {(product.releaseYear ?? "TBD")} • {product.popularity}% Rating
             </p>
           </div>
           <span className="badge shrink-0 ml-2">
