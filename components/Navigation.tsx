@@ -4,6 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import Logo from "./Logo";
+import ThemeToggle from "./ThemeToggle";
+import { motion } from "framer-motion";
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -17,14 +20,17 @@ export default function Navigation() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-white/5 bg-midnight-900/70 backdrop-blur-md">
+    <nav className="sticky top-0 z-50 border-b border-white/5 bg-midnight-900/70 backdrop-blur-md transition-colors dark:border-white/5 dark:bg-midnight-900/70 light:border-tech-cyan/10 light:bg-white/80">
       <div className="container mx-auto px-6">
         <div className="flex h-20 items-center justify-between">
           <Link
             href="/"
-            className="font-display text-2xl uppercase tracking-[0.5em] text-neon-cyan transition-colors hover:text-neon-magenta"
+            className="flex items-center gap-3 transition-transform hover:scale-105"
           >
-            AA&apos;s
+            <Logo size="sm" animated />
+            <span className="font-display text-2xl uppercase tracking-[0.5em] text-tech-cyan transition-colors hover:text-cyan-glow">
+              AA&apos;s
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -33,52 +39,69 @@ export default function Navigation() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`relative font-medium uppercase tracking-[0.35em] transition-colors ${
-                  pathname === link.href
-                    ? "text-neon-cyan"
-                    : "text-slate-400 hover:text-neon-cyan"
-                }`}
+                className="group relative"
               >
-                <span>{link.label}</span>
-                {pathname === link.href && (
-                  <span className="absolute -bottom-3 left-0 right-0 h-[2px] bg-gradient-to-r from-neon-cyan via-neon-magenta to-neon-blue" />
+                <span className={`font-medium uppercase tracking-[0.35em] transition-all ${
+                  pathname === link.href
+                    ? "text-tech-cyan"
+                    : "text-slate-400 hover:text-tech-cyan dark:text-slate-400 dark:hover:text-tech-cyan light:text-slate-600 light:hover:text-tech-cyan"
+                }`}>
+                  {link.label}
+                </span>
+                {pathname === link.href ? (
+                  <motion.span 
+                    layoutId="navbar-indicator"
+                    className="absolute -bottom-3 left-0 right-0 h-[2px] bg-gradient-to-r from-tech-cyan via-cyan-glow to-tech-cyan"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                ) : (
+                  <span className="absolute -bottom-3 left-0 h-[2px] w-0 bg-gradient-to-r from-tech-cyan to-cyan-glow transition-all group-hover:w-full" />
                 )}
               </Link>
             ))}
+            <ThemeToggle />
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="rounded-lg border border-white/10 p-2 text-slate-300 transition-colors hover:border-neon-cyan/40 hover:text-neon-cyan md:hidden"
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label="Toggle menu"
-          >
-            {isOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
-          </button>
+          {/* Mobile Menu Button & Theme Toggle */}
+          <div className="flex items-center gap-3 md:hidden">
+            <ThemeToggle />
+            <button
+              className="rounded-lg border border-white/10 p-2 text-slate-300 transition-colors hover:border-tech-cyan/40 hover:text-tech-cyan dark:border-white/10 dark:hover:border-tech-cyan/40 light:border-tech-cyan/20 light:hover:border-tech-cyan/60"
+              onClick={() => setIsOpen(!isOpen)}
+              aria-label="Toggle menu"
+            >
+              {isOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden space-y-2 border-t border-white/10 py-4">
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="md:hidden space-y-2 border-t border-white/10 py-4 dark:border-white/10 light:border-tech-cyan/20"
+          >
             {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={`block rounded-lg px-3 py-2 font-medium uppercase tracking-[0.3em] transition-colors ${
                   pathname === link.href
-                    ? "bg-neon-cyan/10 text-neon-cyan"
-                    : "text-slate-400 hover:bg-neon-cyan/10 hover:text-neon-cyan"
+                    ? "bg-tech-cyan/10 text-tech-cyan"
+                    : "text-slate-400 hover:bg-tech-cyan/10 hover:text-tech-cyan dark:text-slate-400 dark:hover:bg-tech-cyan/10 dark:hover:text-tech-cyan light:text-slate-600 light:hover:bg-tech-cyan/10 light:hover:text-tech-cyan"
                 }`}
                 onClick={() => setIsOpen(false)}
               >
                 {link.label}
               </Link>
             ))}
-          </div>
+          </motion.div>
         )}
       </div>
     </nav>

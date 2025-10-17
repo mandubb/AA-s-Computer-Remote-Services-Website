@@ -9,13 +9,24 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Primary Tech Cyan
+        "tech-cyan": "#00bcd4",
         "neon-cyan": "#19F9FF",
+        // Cyan-Green Glow Accent
+        "cyan-glow": "#1de9b6",
+        // Secondary colors
         "neon-blue": "#4D7CFE",
         "neon-magenta": "#FF5BFF",
+        // Dark backgrounds
+        "deep-dark": "#121212",
         "midnight": "#050712",
         "midnight-900": "#05030a",
         "midnight-800": "#080c1a",
         "midnight-700": "#0d1228",
+        // Light mode colors
+        "light-bg": "#ffffff",
+        "light-surface": "#f5f5f5",
+        "light-text": "#1a1a1a",
       },
       fontFamily: {
         display: ["var(--font-orbitron)", "var(--font-rajdhani)", "sans-serif"],
