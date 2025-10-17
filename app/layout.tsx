@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Orbitron, Rajdhani, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
+import ScrollProgress from "@/components/ScrollProgress";
 import BackgroundAnimation from "@/components/BackgroundAnimation";
 import ChatBot2 from "@/components/ChatBot2";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -29,6 +30,7 @@ export default function RootLayout({
         <ThemeProvider>
           <SplashIntro />
           <BackgroundAnimation />
+          <ScrollProgress />
           <Navigation />
           <main className="relative min-h-screen">
             {children}
