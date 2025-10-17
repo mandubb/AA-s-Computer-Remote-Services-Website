@@ -3,7 +3,7 @@ import { Inter, Orbitron, Rajdhani, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import BackgroundAnimation from "@/components/BackgroundAnimation";
-import ChatBot from "@/components/ChatBot";
+import ChatBot2 from "@/components/ChatBot2";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const orbitron = Orbitron({ subsets: ["latin"], variable: "--font-orbitron" });
@@ -28,7 +28,7 @@ export default function RootLayout({
         <main className="relative min-h-screen">
           {children}
         </main>
-        <ChatBot />
+        <ChatBot2 />
         <footer className="relative mt-24 border-t border-white/5 bg-midnight-900/80 py-10">
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-neon-cyan/50 to-transparent" />
           <div className="container mx-auto px-6 text-center">
