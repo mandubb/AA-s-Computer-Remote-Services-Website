@@ -3,6 +3,16 @@ import RequestForm from "@/components/RequestForm";
 import SocialButtons from "@/components/SocialButtons";
 import Reveal from "@/components/Reveal";
 import { FileText, Zap, Shield, Headphones } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Request Service",
+  description: "Submit a service request for software installation, game setup, Windows repair, or remote assistance. Expert technicians ready to help.",
+  openGraph: {
+    title: "Request Service | AA's Computer Remote Services",
+    description: "Submit a service request for professional remote computer support and software installation.",
+  },
+};
 
 export default function RequestPage() {
   return (

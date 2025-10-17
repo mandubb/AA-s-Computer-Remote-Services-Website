@@ -3,6 +3,16 @@ import ContactForm from "@/components/ContactForm";
 import SocialButtons from "@/components/SocialButtons";
 import Reveal from "@/components/Reveal";
 import { Mail, Clock, MapPin } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Contact Us",
+  description: "Get in touch with AA's Computer Remote Services for professional remote computer support, software installation, and troubleshooting assistance. Available worldwide.",
+  openGraph: {
+    title: "Contact Us | AA's Computer Remote Services",
+    description: "Get in touch with our remote technicians for professional computer support and software installation assistance.",
+  },
+};
 
 export default function ContactPage() {
   return (

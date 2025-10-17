@@ -10,6 +10,8 @@ import ScrollReveal from "@/components/ScrollReveal";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
+// Note: Metadata is defined in layout.tsx for this page
+
 export default function Home() {
   const [isVisible, setIsVisible] = useState(false);
 

@@ -6,6 +6,7 @@ import ProductCard from "@/components/ProductCard";
 import Pagination from "@/components/Pagination";
 import { Search, Loader2 } from "lucide-react";
 import Reveal from "@/components/Reveal";
+import { fetchWithCache } from "@/lib/cache";
 
 type ProductCardData = Parameters<typeof ProductCard>[0]["product"];
 
@@ -145,15 +146,21 @@ function ProductsPageContent() {
     try {
       console.log('🎮 Fetching games from FreeToGame API and local JSON...');
       
-      // Fetch from both sources in parallel
-      const [apiResponse, localResponse] = await Promise.all([
-        fetch(GAMES_API_PROXY).catch((err) => {
+      // Fetch from both sources in parallel with caching
+      const [apiData, localData] = await Promise.all([
+        fetchWithCache<FreeToGameResponse[]>(
+          GAMES_API_PROXY,
+          'cache_games_api'
+        ).catch((err) => {
           console.error('❌ Games API proxy fetch failed:', err);
-          return { ok: false };
+          return [];
         }),
-        fetch(LOCAL_GAMES_PATH).catch((err) => {
+        fetchWithCache<LocalGame[]>(
+          LOCAL_GAMES_PATH,
+          'cache_games_local'
+        ).catch((err) => {
           console.error('❌ Local JSON fetch failed:', err);
-          return { ok: false };
+          return [];
         })
       ]);
 
@@ -161,45 +168,31 @@ function ProductsPageContent() {
       let localGames: Game[] = [];
 
       // Parse FreeToGame API response
-      if (apiResponse.ok) {
-        try {
-          const apiData: FreeToGameResponse[] = await (apiResponse as Response).json();
-          console.log(`✅ FreeToGame API returned ${apiData.length} games`);
-          
-          apiGames = apiData
-            .filter(game => game.platform.includes('Windows') || game.platform.includes('PC'))
-            .map(game => ({
-              title: game.title,
-              genre: game.genre,
-              release_date: game.release_date,
-              platform: game.platform,
-              thumbnail: game.thumbnail,
-              short_description: game.short_description,
-              source: 'api' as const
-            }));
-          
-          console.log(`✅ Filtered to ${apiGames.length} PC games`);
-        } catch (parseError) {
-          console.error('❌ Failed to parse FreeToGame API response:', parseError);
-        }
-      } else {
-        console.warn('⚠️ FreeToGame API request failed or returned non-OK status');
+      if (apiData && apiData.length > 0) {
+        console.log(`✅ FreeToGame API returned ${apiData.length} games`);
+        
+        apiGames = apiData
+          .filter(game => game.platform.includes('Windows') || game.platform.includes('PC'))
+          .map(game => ({
+            title: game.title,
+            genre: game.genre,
+            release_date: game.release_date,
+            platform: game.platform,
+            thumbnail: game.thumbnail,
+            short_description: game.short_description,
+            source: 'api' as const
+          }));
+        
+        console.log(`✅ Filtered to ${apiGames.length} PC games`);
       }
 
       // Parse local JSON
-      if (localResponse.ok) {
-        try {
-          const localData: LocalGame[] = await (localResponse as Response).json();
-          localGames = localData.map(game => ({
-            ...game,
-            source: 'local' as const
-          }));
-          console.log(`✅ Loaded ${localGames.length} games from local JSON`);
-        } catch (parseError) {
-          console.error('❌ Failed to parse local JSON:', parseError);
-        }
-      } else {
-        console.warn('⚠️ Local JSON request failed');
+      if (localData && localData.length > 0) {
+        localGames = localData.map(game => ({
+          ...game,
+          source: 'local' as const
+        }));
+        console.log(`✅ Loaded ${localGames.length} games from local JSON`);
       }
 
       // Combine and deduplicate by title (case-insensitive)
